@@ -15,5 +15,6 @@ if (!existsSync(targetPath)) {
 }
 
 const features = getFeaturesInPath(targetPath)
-    .map(featurePath => getFeatureData(featurePath));
+    .map(featurePath => getFeatureData(featurePath))
+    .sort((featureA, featureB) => featureA.title > featureB.title);
 console.log(createFeaturesHtml(features));

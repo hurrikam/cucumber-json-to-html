@@ -3,10 +3,24 @@
 // https://www.w3schools.com/howto/howto_js_tabs.asp
 
 function createStyleHtml() {
-    return `/* Style the tab */
+    return `
+    /* Title */
+    .title {
+        text-align: center;
+    }
+
+    /* Root of the tab */
+    .tabroot {
+        display: flex;
+        align-items: left;
+    }
+
+    /* Style the tab */
     .tab {
         overflow: hidden;
-        border: 1px solid #ccc;        
+        border: 1px solid #ccc;
+        float: left;
+        width: 400px;
     }
     
     /* Style the buttons that are used to open the tab content */
@@ -19,6 +33,9 @@ function createStyleHtml() {
         cursor: pointer;
         padding: 14px 16px;
         transition: 0.3s;
+        width: 100%;
+        display: flex;
+        align-items: left;
     }
     
     /* Change background color of buttons on hover */
@@ -30,28 +47,43 @@ function createStyleHtml() {
     .tab button.active {
         background-color: #ccc;
     }
-    
+
+    .tab button .buttontitle {
+        width: 100%;
+    }
+
+    /* Style the tab content container */
+    .tabcontentcontainer {
+        margin-left: 10px;
+        text-align: center;
+        width: 100%;
+    }
+
     /* Style the tab content */
     .tabcontent {
         display: none;
         padding: 6px 12px;
-        border: 1px solid #ccc;
         border-top: none;
     }`
 }
 
 function createFeatureButtonHtml(feature, index) {
-    return `<button class="tablinks" onclick="selectTab(event, ${index})">${feature.title}</button>`;
+    return `<button class="tablinks" onclick="selectTab(event, ${index})">
+                <div class="buttontitle">${feature.title}</div>
+                <div>(${feature.scenarios.length})</div>
+            </button>`;
 }
 
 function createFeatureDivHtml(feature, index) {
     return `
         <div id="${index}" class="tabcontent">
             <h3>${feature.title}</h3>
+            <ol>
             ${feature.scenarios
-                .map(scenario => `<p>${scenario}</p>`)
+                .map(scenario => `<li>${scenario}</li></br>`)
                 .join('')
             }
+            </ol>
         </div>`;
 }
 
@@ -80,6 +112,9 @@ function getJavaScriptHtml(featuresCount) {
 }
 
 function createFeaturesHtml(features) {
+    const scenariosCount = features
+        .map(feature => feature.scenarios.length)
+        .reduce((total, scenariosInFeature) => total + scenariosInFeature);
     return `
         <html>
             <head>
@@ -87,18 +122,21 @@ function createFeaturesHtml(features) {
                 <style>${createStyleHtml()}</style>
             </head>
             <body>
-                <div class="tab">
-                    ${features
-                        .map((feature, index) => createFeatureButtonHtml(feature, index))
-                        .join('')
-                    }
+                <h1 class="title">${features.length} Features (${scenariosCount} scenarios)</h1>
+                <div class="tabroot">
+                    <div class="tab">
+                        ${features
+                            .map((feature, index) => createFeatureButtonHtml(feature, index))
+                            .join('')
+                        }
+                    </div>
+                    <div class="tabcontentcontainer">
+                        ${features
+                            .map((feature, index) => createFeatureDivHtml(feature, index))
+                            .join('')
+                        }
+                    <div>
                 </div>
-                <div style="position: relative">
-                    ${features
-                        .map((feature, index) => createFeatureDivHtml(feature, index))
-                        .join('')
-                    }
-                <div>
             </body>
         </html>`;
 }
