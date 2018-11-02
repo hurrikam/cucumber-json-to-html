@@ -1,20 +1,24 @@
 'use strict';
 
-const { existsSync } = require('fs');
-const { getFeaturesInPath, getFeatureData } = require('./features');
-const createFeaturesHtml = require('./html');
+const { existsSync, readFileSync } = require('fs');
+const { getFeaturesInJsonFile } = require('./features');
 
-const targetPath = process.argv[2];
+const filePath = process.argv[2];
 
-if (!targetPath) {
-    throw new Error('No target path specified');
+if (!filePath) {
+    throw new Error('No target file path specified');
 }
 
-if (!existsSync(targetPath)) {
-    throw new Error('The target path specified does not exist');
+if (!existsSync(filePath)) {
+    throw new Error('The target file path specified does not exist');
 }
 
-const features = getFeaturesInPath(targetPath)
-    .map(featurePath => getFeatureData(featurePath))
-    .sort((featureA, featureB) => featureA.title > featureB.title);
-console.log(createFeaturesHtml(features));
+const features = getFeaturesInJsonFile(filePath);
+const css = readFileSync('report.css')
+const javascript = require('html.js')
+const html = readFileSync('report.html')
+    .replace('{FEATURES_JSON}', JSON.stringify(features))
+    .replace('{INLINE_JAVASCRIPT}', JSON.stringify(javascript))
+    .replace('{INLINE_CSS}', css);
+
+console.log(html);
