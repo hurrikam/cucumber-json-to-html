@@ -1,6 +1,7 @@
 'use strict';
 
 const { existsSync, readFileSync } = require('fs');
+const path = require('path');
 const { getFeaturesInJsonFile } = require('./features');
 
 const filePath = process.argv[2];
@@ -14,11 +15,12 @@ if (!existsSync(filePath)) {
 }
 
 const features = getFeaturesInJsonFile(filePath);
-const css = readFileSync('report.css')
-const javascript = require('html.js')
-const html = readFileSync('report.html')
-    .replace('{FEATURES_JSON}', JSON.stringify(features))
-    .replace('{INLINE_JAVASCRIPT}', JSON.stringify(javascript))
+const css = readFileSync(path.join(__dirname, 'report.css'));
+const reportScript = require('./html.js');
+const html = readFileSync(path.join(__dirname, 'report.html'))
+    .toString()
+    // .replace('{FEATURES_JSON}', JSON.stringify(features))
+    .replace('{INLINE_JAVASCRIPT}', `(${reportScript.toString()})();`)
     .replace('{INLINE_CSS}', css);
 
 console.log(html);

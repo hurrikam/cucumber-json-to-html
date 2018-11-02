@@ -4,10 +4,14 @@
     }
 
     /* Tags Group */
-    .taggroup {
+    .tag-list {
         background-color: #f1f1f1;
         margin: 5px;
         text-align: center;
+    }
+
+    .tag-list .tag-checkbox-name {
+        margin-right: 20px;
     }
 
     /* Root of the tab */
@@ -17,7 +21,7 @@
     }
 
     /* Style the tab */
-    .featureList {
+    .feature-list {
         overflow: hidden;
         border: 1px solid #ccc;
         float: left;
@@ -25,7 +29,7 @@
     }
     
     /* Style the buttons that are used to open the tab content */
-    .featureList button {
+    .feature-list button {
         margin: 1px;
         background-color: #f1f1f1;
         float: left;
@@ -40,30 +44,31 @@
     }
     
     /* Change background color of buttons on hover */
-    .featureList button:hover {
+    .feature-list button:hover {
         background-color: #ddd;
     }
     
     /* Create an active/current tablink class */
-    .featureList button.active {
+    .feature-list button.active {
         background-color: #ccc;
     }
 
-    .featureList button .buttontitle {
+    .feature-list button .button-title {
         width: 100%;
     }
 
     /* Style the tab content container */
-    .tabcontentcontainer {
+    .feature-details {
         margin-left: 10px;
         text-align: center;
         width: 100%;
     }
 
-    /* Style the tab content */
-    .tabcontent {
-        display: none;
-        padding: 6px 12px;
-        border-top: none;
+    .feature-details .scenario-name-light {
+        background-color: white;
+    }
+
+    .feature-details .scenario-name-dark {
+        background-color: aliceblue;
     }
     

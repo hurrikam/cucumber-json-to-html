@@ -2,96 +2,126 @@
 
 // https://www.w3schools.com/howto/howto_js_tabs.asp
 
-(function() {
-    function getScenariosInFeature(feature) {
-        return feature.elements
-            .filter(element => element.type === 'scenario');
-    }
+function reportScript() {
 
-    function getTagsFromElement(element) {
-        return element.tags.map(tag => tag.name) || [];
-    }
+    const features = [
+        {
+            name: "Feature 1",
+            scenarios: [
+                {
+                    name: "Scenario 1",
+                    tags: []
+                },
+                {
+                    name: "Scenario 2",
+                    tags: ["@testTag1", "@featureTag"]
+                },
+            ]
+        },
+        {
+            name: "Feature 2",
+            scenarios: [
+                {
+                    name: "Scenario 3",
+                    tags: []
+                },
+                {
+                    name: "Scenario 4",
+                    tags: ["@testTag3", "@featureTag"]
+                },
+            ],
+            // tags: ["@featureTag"]
+        }
+    ];
 
-    function getTagsFromFeature(feature) {
-        const tags = getTagsFromElement(feature);
-        const scenarios = getScenariosInFeature(feature);
-        scenarios.forEach(scenario => tags.push(...getTagsFromElement(scenario)));
-        return tags;
-    }
-
-    function getTagsFromFeatures(features) {
-        const tags = [];
-        features.forEach(feature => tags.push(...getTagsFromFeature(feature)));
-        return tags.filter((tag, index) => tags.indexOf(tag) === index);
-    }
-
-    function createTagsGroupHtml(features = []) {
-        const tags = getTagsFromFeatures(features);
-        const tagGroup = document.querySelector('.taggroup');
-        tagGroup.innerHTML = '';
-        tags.forEach(tag => tagGroup.innerHTML += `<input type="checkbox" value="${tag}"/>${tag}`);
-    }
-
-    function createFeatureButtonHtml(feature, index) {
-        return `<button class="tablinks" onclick="updateFeatureTabList()">
-                    <div class="buttontitle">${feature.name}</div>
-                    <div>(${getScenariosInFeature(feature).length})</div>
-                </button>`;
-    }
-
-    function createFeatureDivHtml(feature, index) {
-        return `
-            <div id="${index}" class="tabcontent">
-                <h3>${feature.name}</h3>
-                <ol>
-                ${getScenariosInFeature(feature)
-                    .map(scenario => `<li>${scenario.name}</li></br>`)
-                    .join('')
-                }
-                </ol>
-            </div>`;
+    function hasTagsFromArray(elementWithTags, otherTags) {
+        return elementWithTags.tags.some(tag => otherTags.includes(tag));
     }
 
     function getSelectedTags() {
-        return document.querySelector('input')
+        return [...document.querySelectorAll('input[type=checkbox]')]
             .filter(checkbox => checkbox.checked)
             .map(checkbox => checkbox.value);
     }
 
-    function getScenariosWithTags(feature, includedTags) {
-        const scenarios = getScenariosInFeature(feature);
-        return scenarios
-            .filter(scenario => scenario.tags.some(tag => includedTags.includes(tag)));
+    function filterFeatures(selectedTags) {
+        return features.filter(feature => filterScenariosInFeature(feature, selectedTags));
+    }    
+
+    function filterScenariosInFeature(feature, selectedTags) {
+        return feature.scenarios
+            .filter(scenario => hasTagsFromArray(scenario, selectedTags))
     }
 
-    function getIncludedFeatures(features = []) {
+    function getFilteredScenarios(selectedTags) {
+        const scenarios = [];
+        features.forEach(feature => scenarios.push(...filterScenariosInFeature(feature, selectedTags)));
+        return scenarios;
+    }
+
+    function getUniqueTagsFromFeatures(features) {
+        const tags = [];
+        features.forEach(feature => {
+            feature.scenarios.forEach(scenario => tags.push(...scenario.tags))
+        });
+        return tags
+            .filter((tag, index) => tags.indexOf(tag) === index);
+    }
+
+    function createTagCheckbox(tag) {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = tag;
+        checkbox.onclick = () => onSelectedTagsChanged();
+        return checkbox;
+    }
+
+    function createTagList(features) {
+        const tags = getUniqueTagsFromFeatures(features)
+            .sort();
+        const tagGroup = document.querySelector('.tag-list');
+        tags.forEach(tag => {
+            tagGroup.appendChild(createTagCheckbox(tag));
+            tagGroup.innerHTML += `<span class="tag-checkbox-name">${tag}</span>`;
+        });
+    }
+
+    function createFeatureList(features) {
+        const featureList = document.querySelector('.feature-list');
+        features.forEach((feature, index) => featureList.appendChild(createFeatureButton(feature, index)));
+    }
+
+    function createFeatureButton(feature, index) {
+        const button = document.createElement('button');
+        button.onclick = () => updateFeatureDetails(features[index]);
+        button.innerHTML =  `<div class="button-title">${feature.name}</div>
+                            <div>(${feature.scenarios.length})</div>`;
+        return button;
+    }
+    
+    function updateFeatureDetails(feature) {
         const selectedTags = getSelectedTags();
-        return features
-            .filter(feature => getScenariosWithTags(feature, selectedTags).length > 0);
+        const featureDetails = document.querySelector('.feature-details');
+        featureDetails.innerHTML = `
+            <h3>${feature.name}</h3>
+            <ol>
+            ${filterScenariosInFeature(feature, selectedTags)
+                .map((scenario, index) =>
+                    `<li class="${index % 2 ? 'scenario-name-light' : 'scenario-name-dark'}">${scenario.name}</li></br>`)
+                .join('')
+            }
+            </ol>`;
     }
 
-    function updateFeatureList(features = []) {
-        const featureTabList = document.querySelector('.featureList');
-        featureTabList.innerHTML = '';
-        getIncludedFeatures()
-            .forEach(feature => {
-                const featureIndex = features.indexOf(feature);
-                featureTabList.innerHTML += createFeatureButtonHtml(feature, featureIndex);
-            });
-    }
-
-    function updateTitle() {
+    function updateTitle(selectedTags) {
         document.querySelector('.title').textContent = 
-            `${features.length} Features (${scenariosCount} scenarios)`;
+            `${filterFeatures(selectedTags).length} Features (${getFilteredScenarios(selectedTags).length} scenarios)`;
     }
         
     function selectTab(evt, index) {
-        // Declare all variables
-        const i, tablinks;
-
         // Get all elements with class="tablinks" and remove the class "active"
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
+        const tablinks = document.querySelectorAll("tablinks");
+        for (let i = 0; i < tablinks.length; i++) {
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
 
@@ -100,12 +130,23 @@
         evt.currentTarget.className += " active";
     }
 
-    window.onload = () => {
-        createTagsGroupHtml(); 
-        updateTitle();
-        updateFeatureList();
-        document.getElementsByClassName("tablinks")[0].click()
-    };
-})();
+    function selectFirstFeature() {
+        document.querySelectorAll('.feature-list button')[0].click();
+    }
 
-module.exports = createFeaturesHtml;
+    function onSelectedTagsChanged() {
+        const selectedTags = getSelectedTags();
+        updateTitle(selectedTags);
+        selectFirstFeature();
+    }
+
+    window.onload = () => {
+        const selectedTags = getSelectedTags();
+        updateTitle(selectedTags);
+        createTagList(features);
+        createFeatureList(features);
+        selectFirstFeature();
+    };
+};
+
+module.exports = reportScript;
