@@ -1,77 +1,63 @@
 'use strict';
 
-const { lstatSync, readdirSync, readFileSync } = require('fs');
-const { join } = require('path');
-const { EOL } = require('os');
+const { readFileSync } = require('fs');
 
-const FEATURE_KEYWORD = 'Feature:';
-const SCENARIO_KEYWORD = 'Scenario:';
-const SCENARIO_OUTLINE_KEYWORD = 'Scenario Outline:';
-const EXAMPLES_KEYWORD = 'Examples:';
-const EXAMPLES_FIELD_SEPARATOR = '|';
+function getTagsFromElement(element) {
+    return element.tags.map(tag => tag.name) || [];
+}
 
-function getFeaturesInPath(path) {
-    const featureFilePaths = [];
-    readdirSync(path)
-        .map(itemName => join(path, itemName))
-        .forEach(itemPath => {
-            if (lstatSync(itemPath).isDirectory()) {
-                const featuresInSubDirectory = getFeaturesInPath(itemPath);
-                featureFilePaths.push(...featuresInSubDirectory);
-                return;
-            }
-            if (lstatSync(itemPath).isFile() && itemPath
-                .toLowerCase()
-                .trim()
-                .endsWith('.feature')) {
-                featureFilePaths.push(itemPath);
-            }
+function getFeaturesInJsonFile(filePath) {
+    const fileContent = readFileSync(filePath);
+    return JSON.parse(fileContent)
+        .filter(element => element.keyword === 'Feature')
+        .map(feature => {
+            const featureTags = getTagsFromElement(feature);
+            return {
+                name: feature.name,
+                scenarios: getScenariosInFeature(feature, featureTags)
+            };
         });
-    return featureFilePaths;
 }
 
-function getExamplesData(textLines, startIndex) {
-    textLines.forEach(textLine => {
-        if (textLine.startsWith(EXAMPLES_FIELD_SEPARATOR)) {
-            const fields = textLine.split(EXAMPLES_FIELD_SEPARATOR);
-            feature.title = textLine.substring(FEATURE_KEYWORD.length);
-            return;
-        }
-    });
+function getScenariosInFeature(feature, featureTags) {
+    return feature.elements
+        .filter(element => element.type === 'scenario')
+        .map(scenario => {
+            const scenarioTags = getTagsFromElement(scenario);
+            return {
+                name: scenario.name,
+                tags: [...scenarioTags, ...featureTags]
+            };
+        });
 }
 
-function getFeatureData(filePath) {
-    const feature = {
-        filePath,
-        scenarios: []
-    };
-    const textLines = readFileSync(filePath)
-        .toString()
-        .split(EOL)
-        .map(textLine => textLine.trim());
-    textLines.forEach(textLine => {
-        if (textLine.startsWith(FEATURE_KEYWORD)) {
-            feature.title = textLine.substring(FEATURE_KEYWORD.length);
-            return;
-        }
-        if (textLine.startsWith(SCENARIO_KEYWORD)) {
-            const scenarioTitle = textLine.substring(SCENARIO_KEYWORD.length);
-            feature.scenarios.push(scenarioTitle);
-            return;
-        }
-        if (textLine.startsWith(SCENARIO_OUTLINE_KEYWORD)) {
-            const scenarioTitle = textLine.substring(SCENARIO_OUTLINE_KEYWORD.length);
-            feature.scenarios.push(scenarioTitle);
-            return;
-        }
-        if (textLine.startsWith(EXAMPLES_KEYWORD)) {
-            return;
-        }
+function getAllScenarios(features) {
+    const scenarios = [];
+    features.forEach(features => scenarios.push(...features.scenarios));
+    return scenarios;
+}
+
+function getUniqueTagsFromFeatures(features) {
+    const tags = [];
+    features.forEach(feature => {
+        feature.scenarios.forEach(scenario => tags.push(...scenario.tags))
     });
-    return feature;
+    return tags
+        .filter((tag, index) => tags.indexOf(tag) === index);
+}
+
+function hasTagsFromArray(elementWithTags, otherTags) {
+    return elementWithTags.tags.some(tag => otherTags.includes(tag));
+}
+
+function getScenariosWithTag(scenarios, tag) {
+    return scenarios.filter(scenario => hasTagsFromArray(scenario, [ tag ]));
 }
 
 module.exports = {
-    getFeaturesInPath,
-    getFeatureData
+    getFeaturesInJsonFile,
+    getScenariosInFeature,
+    getAllScenarios,
+    getUniqueTagsFromFeatures,
+    getScenariosWithTag
 };
