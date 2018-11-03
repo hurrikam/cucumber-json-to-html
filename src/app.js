@@ -3,6 +3,7 @@
 const { existsSync, readFileSync } = require('fs');
 const path = require('path');
 const { getFeaturesInJsonFile } = require('./features');
+const HtmlGenerator = require('./htmlGenerator');
 
 const filePath = process.argv[2];
 
@@ -15,12 +16,9 @@ if (!existsSync(filePath)) {
 }
 
 const features = getFeaturesInJsonFile(filePath);
-const css = readFileSync(path.join(__dirname, 'report.css'));
-const reportScript = require('./html.js');
-const html = readFileSync(path.join(__dirname, 'report.html'))
-    .toString()
-    // .replace('{FEATURES_JSON}', JSON.stringify(features))
-    .replace('{INLINE_JAVASCRIPT}', `(${reportScript.toString()})();`)
-    .replace('{INLINE_CSS}', css);
+const css = readFileSync(path.join(__dirname, 'html.css'));
+const script = readFileSync(path.join(__dirname, 'htmlScript.js'));
+const htmlGenerator = new HtmlGenerator(features, css, script);
+const html = htmlGenerator.generate();
 
 console.log(html);

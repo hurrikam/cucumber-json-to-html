@@ -1,0 +1,11 @@
+{
+    "name": "cucumber-test-list-generator",
+    "author": {
+        "name": "Diego Di Mauro",
+        "url": "https://github.com/hurrikam"
+    },
+    "version": "0.1.0",
+    "scripts": {
+        "generate": "node ./src/app"
+    }
+}

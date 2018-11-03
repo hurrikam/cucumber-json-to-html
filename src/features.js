@@ -2,6 +2,10 @@
 
 const { readFileSync } = require('fs');
 
+function getTagsFromElement(element) {
+    return element.tags.map(tag => tag.name) || [];
+}
+
 function getFeaturesInJsonFile(filePath) {
     const fileContent = readFileSync(filePath);
     return JSON.parse(fileContent)
@@ -15,37 +19,45 @@ function getFeaturesInJsonFile(filePath) {
         });
 }
 
-function getScenariosInFeature(feature, tags) {
+function getScenariosInFeature(feature, featureTags) {
     return feature.elements
         .filter(element => element.type === 'scenario')
         .map(scenario => {
             const scenarioTags = getTagsFromElement(scenario);
             return {
                 name: scenario.name,
-                tags: [...scenarioTags, ...tags]
+                tags: [...scenarioTags, ...featureTags]
             };
         });
 }
 
-function getTagsFromElement(element) {
-    return element.tags.map(tag => tag.name) || [];
+function getAllScenarios(features) {
+    const scenarios = [];
+    features.forEach(features => scenarios.push(...features.scenarios));
+    return scenarios;
 }
 
-// function getTagsFromFeature(feature) {
-//     const tags = getTagsFromElement(feature);
-//     const scenarios = getScenariosInFeature(feature);
-//     scenarios.forEach(scenario => tags.push(...getTagsFromElement(scenario)));
-//     return tags;
-// }
+function getUniqueTagsFromFeatures(features) {
+    const tags = [];
+    features.forEach(feature => {
+        feature.scenarios.forEach(scenario => tags.push(...scenario.tags))
+    });
+    return tags
+        .filter((tag, index) => tags.indexOf(tag) === index);
+}
 
-// function getTagsFromFeatures(features) {
-//     const tags = [];
-//     features.forEach(feature => tags.push(...getTagsFromFeature(feature)));
-//     return tags.filter((tag, index) => tags.indexOf(tag) === index);
-// }
+function hasTagsFromArray(elementWithTags, otherTags) {
+    return elementWithTags.tags.some(tag => otherTags.includes(tag));
+}
+
+function getScenariosWithTag(scenarios, tag) {
+    return scenarios.filter(scenario => hasTagsFromArray(scenario, [ tag ]));
+}
 
 module.exports = {
     getFeaturesInJsonFile,
     getScenariosInFeature,
-    // getTagsFromFeatures
+    getAllScenarios,
+    getUniqueTagsFromFeatures,
+    getScenariosWithTag
 };
