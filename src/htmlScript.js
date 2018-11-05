@@ -1,5 +1,14 @@
 'use strict';
 
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
+
 function getSelectedTags() {
     const tagCheckboxes = document.querySelectorAll('.tag-list input[type="checkbox"]');
     if (tagCheckboxes.length === 0) {
@@ -68,7 +77,7 @@ function selectFeature(featureIndex) {
                 `<li class="scenario-name
                     ${index % 2 ? 'scenario-name-light' : 'scenario-name-dark'}
                     ${scenario.tags.join(' ')}    
-                ">${scenario.name}
+                ">${escapeHtml(scenario.name)}
                 </li>`)
             .join('')
         }
