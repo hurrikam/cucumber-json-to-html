@@ -51,9 +51,17 @@
     align-items: left;
 }
 
+.feature-list button.button-no-scenarios {
+    background-color: pink;
+}
+
 /* Change background color of buttons on hover */
 .feature-list button:hover {
     background-color: #ddd;
+}
+
+.feature-list button.button-no-scenarios:hover {
+    background-color: lightcoral;
 }
 
 /* Create an active/current tablink class */
@@ -61,8 +69,17 @@
     background-color: #ccc;
 }
 
+.feature-list button.button-no-scenarios.active {
+    background-color: salmon;
+}
+
 .feature-list button .button-title {
     width: 100%;
+    margin-right: 20px;
+}
+
+.feature-list button .button-scenario-count {
+    font-weight: bold;
 }
 
 /* Style the tab content container */

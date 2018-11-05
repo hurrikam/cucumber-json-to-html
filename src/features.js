@@ -54,10 +54,15 @@ function getScenariosWithTag(scenarios, tag) {
     return scenarios.filter(scenario => hasTagsFromArray(scenario, [ tag ]));
 }
 
+function getScenariosWithoutTag(scenarios) {
+    return scenarios.filter(scenario => scenario.tags.length === 0);
+}
+
 module.exports = {
     getFeaturesInJsonFile,
     getScenariosInFeature,
     getAllScenarios,
     getUniqueTagsFromFeatures,
-    getScenariosWithTag
+    getScenariosWithTag,
+    getScenariosWithoutTag
 };

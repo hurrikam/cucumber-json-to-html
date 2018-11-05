@@ -3,7 +3,8 @@
 const {
     getAllScenarios,
     getUniqueTagsFromFeatures,
-    getScenariosWithTag
+    getScenariosWithTag,
+    getScenariosWithoutTag
 } = require('./features');
 
 class htmlGenerator {
@@ -29,60 +30,41 @@ class htmlGenerator {
                 <h2 class="title">${this.scenarios.length} scenarios</h2>`;
     }
 
+    createTagSelector(tag, name, scenariosWithTagCount) {
+        const scenariosWithTagPercentage = scenariosWithTagCount / this.scenarios.length * 100;
+        return `<span class="tag-checkbox-name">
+                    <input type="checkbox" value="${tag}" checked onclick="onSelectedTagsChanges()"/>
+                    ${name}
+                    <span class="tag-details">
+                        (${scenariosWithTagCount} scenarios / ${scenariosWithTagPercentage.toFixed(2)}%)
+                    </span>
+                </span>`;
+    }
+
     createTagList() {
         const tags = getUniqueTagsFromFeatures(this.features)
             .sort();
         if (tags.length === 0) {
             return '';
         } 
-        let html = '<h3 class="tag-list">';
-        tags.forEach(tag => {
-            const scenariosWithTagCount = getScenariosWithTag(this.scenarios, tag).length;
-            const scenariosWithTagPercentage = scenariosWithTagCount / this.scenarios.length * 100;
-            html += `<span class="tag-checkbox-name">
-                        ${tag}
-                        <span class="tag-details">
-                            (${scenariosWithTagCount} scenarios / ${scenariosWithTagPercentage.toFixed(2)}%)
-                        </span>
-                    </span>`;
-        });
-        return html + '</h3>';
+        return `        
+        <h3 class="tag-list">
+        ${this.createTagSelector('', 'NO TAGS', getScenariosWithoutTag(this.scenarios).length)}
+        ${tags
+            .map(tag => this.createTagSelector(tag, tag, getScenariosWithTag(this.scenarios, tag).length))
+            .join('')
+        }
+        </h3>`;
     }
 
     createFeatureList() {
         return `<div class="feature-list">
             ${this.features
                 .map((feature, index) =>
-                    `<button onclick="showFeature(${index})">
+                    `<button class="feature_${index}" onclick="selectFeature(${index})">
                         <div class="button-title">${feature.name}</div>
-                        <div>(${feature.scenarios.length})</div>
+                        <div class="button-scenario-count">${feature.scenarios.length}</div>
                     </button>`)
-                .join('')
-            }
-            </div>`;
-    }
-
-    createScenarioList(feature) {
-        return `<ol>
-            ${feature.scenarios
-                .map((scenario, index) =>
-                    `<li class="scenario-name
-                        ${index % 2 ? 'scenario-name-light' : 'scenario-name-dark'}">${scenario.name}
-                    </li>`)
-                .join('')
-            }
-            </ol>`;
-    } 
-
-    createFeaturesDetails() {
-        return `<div class="feature-details">
-            ${this.features
-                .map((feature, index) =>
-                    `<div id="feature_${index}" class="feature feature-hidden">
-                        <h3>${feature.name}</h3>
-                        ${this.createScenarioList(feature)}
-                    </div>`
-                )
                 .join('')
             }
             </div>`;
@@ -93,14 +75,17 @@ class htmlGenerator {
             <html>
                 <head>
                     <style>${this.css}</style>
-                    <script>${this.script}</script>
+                    <script>
+                        ${this.script}
+                        const features = ${JSON.stringify(this.features)};
+                    </script>
                 </head>
                 <body>
                     ${this.createTitle()}
                     ${this.createTagList()}
                     <div class="feature-root-container">
                         ${this.createFeatureList()}
-                        ${this.createFeaturesDetails()}
+                        <div class="feature-details"></div>
                     </div>
                 </body>
             </html>`;
