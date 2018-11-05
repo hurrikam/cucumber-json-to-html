@@ -1,9 +1,12 @@
 'use strict';
 
 function getSelectedTags() {
+    const tagCheckboxes = document.querySelectorAll('.tag-list input[type="checkbox"]');
+    if (tagCheckboxes.length === 0) {
+        return [''];
+    }
     const tags = [];
-    document.querySelectorAll('.tag-list input[type="checkbox"]')
-        .forEach(checkbox => {
+    tagCheckboxes.forEach(checkbox => {
             if (checkbox.checked) {
                 tags.push(checkbox.value);
             }
@@ -37,8 +40,24 @@ function updateFeatureList() {
         });
 }
 
-function showFeature(index) {
-    const feature = features[index];
+function getActiveFeatureIndex() {
+    const featureButtons = document.querySelectorAll('.feature-list button');
+    for (let i = 0; i < featureButtons.length; i++) {
+        if (featureButtons[i].classList.contains('active')) {
+            return i;
+        }
+    }
+}
+
+function selectFeature(featureIndex) {
+    document.querySelectorAll(`.feature-list button`).forEach((button, index) => {
+        if (index === featureIndex) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+    const feature = features[featureIndex];
     const filteredScenarios = filterScenariosInFeature(feature);
     const featureDetails = document.querySelector('.feature-details');
     featureDetails.innerHTML = `
@@ -54,6 +73,12 @@ function showFeature(index) {
             .join('')
         }
         </ol>`;    
+}
+
+function onSelectedTagsChanges() {
+    updateFeatureList();
+    const activeFeatureIndex = getActiveFeatureIndex();
+    selectFeature(activeFeatureIndex);
 }
 
 window.onload = () => document.querySelector('.feature-list button').click();

@@ -75,6 +75,11 @@
 
 .feature-list button .button-title {
     width: 100%;
+    margin-right: 20px;
+}
+
+.feature-list button .button-scenario-count {
+    font-weight: bold;
 }
 
 /* Style the tab content container */

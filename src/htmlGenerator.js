@@ -33,7 +33,7 @@ class htmlGenerator {
     createTagSelector(tag, name, scenariosWithTagCount) {
         const scenariosWithTagPercentage = scenariosWithTagCount / this.scenarios.length * 100;
         return `<span class="tag-checkbox-name">
-                    <input type="checkbox" value="${tag}" checked onclick="updateFeatureList()"/>
+                    <input type="checkbox" value="${tag}" checked onclick="onSelectedTagsChanges()"/>
                     ${name}
                     <span class="tag-details">
                         (${scenariosWithTagCount} scenarios / ${scenariosWithTagPercentage.toFixed(2)}%)
@@ -47,8 +47,7 @@ class htmlGenerator {
         if (tags.length === 0) {
             return '';
         } 
-        return `
-        
+        return `        
         <h3 class="tag-list">
         ${this.createTagSelector('', 'NO TAGS', getScenariosWithoutTag(this.scenarios).length)}
         ${tags
@@ -62,9 +61,9 @@ class htmlGenerator {
         return `<div class="feature-list">
             ${this.features
                 .map((feature, index) =>
-                    `<button onclick="showFeature(${index})">
+                    `<button class="feature_${index}" onclick="selectFeature(${index})">
                         <div class="button-title">${feature.name}</div>
-                        <div class="button-scenario-count">(${feature.scenarios.length})</div>
+                        <div class="button-scenario-count">${feature.scenarios.length}</div>
                     </button>`)
                 .join('')
             }
