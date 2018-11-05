@@ -15,7 +15,8 @@ if (!existsSync(filePath)) {
     throw new Error('The target file path specified does not exist');
 }
 
-const features = getFeaturesInJsonFile(filePath);
+const features = getFeaturesInJsonFile(filePath)
+    .sort((featureA, featureB) => featureA.name.localeCompare(featureB.name));
 const css = readFileSync(path.join(__dirname, 'html.css'));
 const script = readFileSync(path.join(__dirname, 'htmlScript.js'));
 const htmlGenerator = new HtmlGenerator(features, css, script);
