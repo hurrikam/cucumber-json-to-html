@@ -51,14 +51,26 @@
     align-items: left;
 }
 
+.feature-list button.button-no-scenarios {
+    background-color: pink;
+}
+
 /* Change background color of buttons on hover */
 .feature-list button:hover {
     background-color: #ddd;
 }
 
+.feature-list button.button-no-scenarios:hover {
+    background-color: lightcoral;
+}
+
 /* Create an active/current tablink class */
 .feature-list button.active {
     background-color: #ccc;
+}
+
+.feature-list button.button-no-scenarios.active {
+    background-color: salmon;
 }
 
 .feature-list button .button-title {
