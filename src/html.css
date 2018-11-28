@@ -107,3 +107,14 @@
 .feature-details .scenario-name-dark {
     background-color: aliceblue;
 }
+
+.feature-details .warning {
+    background-color: lightyellow;
+    color: darkred;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 125%;
+    margin-top: 200px;
+    padding-left: 20px;
+    padding-right: 20px;
+}

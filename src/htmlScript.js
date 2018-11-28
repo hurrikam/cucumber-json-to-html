@@ -67,21 +67,28 @@ function selectFeature(featureIndex) {
         }
     });
     const feature = features[featureIndex];
-    const filteredScenarios = filterScenariosInFeature(feature);
     const featureDetails = document.querySelector('.feature-details');
-    featureDetails.innerHTML = `
-        <h3>${feature.name}</h3>    
-        <ol>
-        ${filteredScenarios
-            .map((scenario, index) =>
-                `<li class="scenario-name
-                    ${index % 2 ? 'scenario-name-light' : 'scenario-name-dark'}
-                    ${scenario.tags.join(' ')}    
-                ">${escapeHtml(scenario.name)}
-                </li>`)
-            .join('')
-        }
-        </ol>`;    
+    featureDetails.innerHTML = `<h3>${feature.name}</h3>`;
+    if (feature.scenarios.length === 0) {
+        featureDetails.innerHTML += '<div class="warning">No scenarios defined in the feature.</div>';
+        return;
+    }
+    const filteredScenarios = filterScenariosInFeature(feature);
+    if (filteredScenarios.length > 0) {
+        featureDetails.innerHTML += `<ol>
+            ${filteredScenarios
+                .map((scenario, index) =>
+                    `<li class="scenario-name
+                        ${index % 2 ? 'scenario-name-light' : 'scenario-name-dark'}
+                        ${scenario.tags.join(' ')}    
+                    ">${escapeHtml(scenario.name)}
+                    </li>`)
+                .join('')
+            }
+            </ol>`;
+        return;
+    }
+    featureDetails.innerHTML += '<div class="warning">No scenarios in the feature match the current tag selection.</div>';
 }
 
 function onSelectedTagsChanges() {
