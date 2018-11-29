@@ -1,4 +1,4 @@
-# cucumber-test-list-generator
+# cucumber-json-to-html
 A Node.js app for converting a JSON file generated via `cucumber -f json` into a user friendly HTML list of features and scenarios.
 
 ### Usage
