@@ -7,7 +7,7 @@ const {
     getScenariosWithoutTag
 } = require('./features');
 
-class htmlGenerator {
+class HtmlGenerator {
 
     constructor(features, css, script) {
         if (!features) {
@@ -30,10 +30,17 @@ class htmlGenerator {
                 <h2 class="title">${this.scenarios.length} scenarios</h2>`;
     }
 
+    createAllTagsSelector() {
+        return `<span class="tag-checkbox-name">
+                    <input id="allTagsSelector" type="checkbox" checked onclick="onAllTagsSelectedChanged()"/>
+                    Select/Deselect All
+                </span>`;
+    }
+
     createTagSelector(tag, name, scenariosWithTagCount) {
         const scenariosWithTagPercentage = scenariosWithTagCount / this.scenarios.length * 100;
         return `<span class="tag-checkbox-name">
-                    <input type="checkbox" value="${tag}" checked onclick="onSelectedTagsChanges()"/>
+                    <input type="checkbox" value="${tag}" checked onclick="onSelectedTagsChanged()"/>
                     ${name}
                     <span class="tag-details">
                         (${scenariosWithTagCount} scenarios / ${scenariosWithTagPercentage.toFixed(2)}%)
@@ -46,8 +53,10 @@ class htmlGenerator {
             .sort();
         if (tags.length === 0) {
             return '';
-        } 
-        return `        
+        }
+        return `
+        ${this.createAllTagsSelector()}
+        <br/>
         <h3 class="tag-list">
         ${this.createTagSelector('', 'NO TAGS', getScenariosWithoutTag(this.scenarios).length)}
         ${tags
@@ -59,6 +68,11 @@ class htmlGenerator {
 
     createFeatureList() {
         return `<div class="feature-list">
+            <div class="feature-list-header">
+                <span class="button-title">Feature title</span>
+                <span class="button-scenario-count"># of scenarios</span>
+            </div>
+            <div class="feature-list-items">
             ${this.features
                 .map((feature, index) =>
                     `<button class="feature_${index}" onclick="selectFeature(${index})">
@@ -67,6 +81,7 @@ class htmlGenerator {
                     </button>`)
                 .join('')
             }
+            </div>
             </div>`;
     }
 
@@ -83,7 +98,7 @@ class htmlGenerator {
                 <body>
                     ${this.createTitle()}
                     ${this.createTagList()}
-                    <div class="feature-root-container">
+                    <div class="feature-root-container">                        
                         ${this.createFeatureList()}
                         <div class="feature-details"></div>
                     </div>
@@ -92,4 +107,4 @@ class htmlGenerator {
     }
 }
 
-module.exports = htmlGenerator;
+module.exports = HtmlGenerator;

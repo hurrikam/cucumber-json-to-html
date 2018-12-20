@@ -2,24 +2,28 @@
 
 function escapeHtml(unsafe) {
     return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
- }
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function getTagCheckboxes() {
+    return document.querySelectorAll('.tag-list input[type="checkbox"]');
+}
 
 function getSelectedTags() {
-    const tagCheckboxes = document.querySelectorAll('.tag-list input[type="checkbox"]');
+    const tagCheckboxes = getTagCheckboxes();
     if (tagCheckboxes.length === 0) {
         return [''];
     }
     const tags = [];
     tagCheckboxes.forEach(checkbox => {
-            if (checkbox.checked) {
-                tags.push(checkbox.value);
-            }
-        });
+        if (checkbox.checked) {
+            tags.push(checkbox.value);
+        }
+    });
     return tags;
 }
 
@@ -91,10 +95,20 @@ function selectFeature(featureIndex) {
     featureDetails.innerHTML += '<div class="warning">No scenarios in the feature match the current tag selection.</div>';
 }
 
-function onSelectedTagsChanges() {
+function onSelectedTagsChanged() {
     updateFeatureList();
     const activeFeatureIndex = getActiveFeatureIndex();
     selectFeature(activeFeatureIndex);
+}
+
+function onAllTagsSelectedChanged() {
+    const allTagsCheckbox = document.querySelector('#allTagsSelector');
+    const tagCheckboxes = getTagCheckboxes();
+    if (tagCheckboxes.length === 0) {
+        return;
+    }
+    tagCheckboxes.forEach(checkbox => checkbox.checked = allTagsCheckbox.checked);
+    onSelectedTagsChanged();
 }
 
 window.onload = () => document.querySelector('.feature-list button').click();

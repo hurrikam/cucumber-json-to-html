@@ -27,13 +27,22 @@
     height: calc(100% - 150px);
 }
 
-/* Style the tab */
 .feature-list {
-    overflow: hidden;
-    overflow-y: auto;
     border: 1px solid #ccc;
     float: left;
     width: 400px;
+}
+
+.feature-list-header {
+    background: lightyellow;
+    padding: 14px 16px;
+    text-align: center;
+}
+
+.feature-list-items {
+    overflow: hidden;
+    overflow-y: auto;
+    height: calc(100% - 75px);
 }
 
 /* Style the buttons that are used to open the tab content */
@@ -73,12 +82,12 @@
     background-color: salmon;
 }
 
-.feature-list button .button-title {
+.feature-list .button-title {
     width: 100%;
     margin-right: 20px;
 }
 
-.feature-list button .button-scenario-count {
+.feature-list .button-scenario-count {
     font-weight: bold;
 }
 
